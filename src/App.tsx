@@ -1,39 +1,27 @@
 import React, { useEffect, useState } from "react";
-import axios from 'axios';
 
 export default function App() {
-    const [repositories, setRepositories] = useState<any[]>([]);
+    const [location, setLocation] = useState({
+        latitude: null,
+        longitude: null
+    });
 
     useEffect(() => {
-        const fetchData = async () => {
-            const response = await axios(
-                "https://api.github.com/users/GuilhermeDeOliveiraAmorim/repos"
-            );
-            setRepositories(response.data);
-        };
-        fetchData();
+        const watchId = navigator.geolocation.watchPosition(handlePositionReceived);
+
+        return () => navigator.geolocation.clearWatch(watchId);
     }, []);
-    
-    useEffect(() => {
-        const filtered = repositories.filter(repo => repo.favorite);
-        document.title = `You have ${filtered.length} favorite repositories`;
-    }, [repositories]);
-    
-    function handleFavorite(id: number) {
-        const newRepositories = repositories.map(repo => {
-            return repo.id === id ? {...repo, favorite: !repo.favorite} : repo
-        });
-        setRepositories(newRepositories);
+
+    function handlePositionReceived({coords}: any) {
+        const { latitude, longitude } = coords;
+        setLocation({ latitude, longitude });
     }
 
     return (
-        <ul>
-            {repositories.map((repo) => (
-                <li key={repo.id}>
-                    {repo.name}{repo.favorite && <span> (Favorite) </span>}
-                    <button onClick={() => handleFavorite(repo.id)}>+</button>
-                </li>
-            ))}
-        </ul>
+        <>
+            Latitude: {location.latitude}
+            <br />
+            Longitude: {location.longitude}
+        </>
     );
 }
