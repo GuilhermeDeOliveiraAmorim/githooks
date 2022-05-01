@@ -1,30 +1,26 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import axios from 'axios';
 
-function App() {
-    const [repositories, setRepositories] = useState([
-        { id: 1, name: "repo-teste-1" },
-        { id: 2, name: "repo-teste-2" },
-        { id: 3, name: "repo-teste-3" },
-    ]);
+export default function App() {
+    const [repositories, setRepositories] = useState<any[]>([]);
 
-    function handleAddRepository() {
-        const idN = Math.random();
-        setRepositories([
-            ...repositories,
-            { id: idN, name: "novo-repo-"+idN }
-        ]);
-    }
+    useEffect(() => {
+        const fetchData = async () => {
+            const response = await axios(
+                "https://api.github.com/users/GuilhermeDeOliveiraAmorim/repos"
+            );
+
+            setRepositories(response.data);
+        };
+
+        fetchData();
+    }, []);
 
     return (
-        <>
-            <ul>
-                {repositories.map((repo) => (
-                    <li key={repo.id}>{repo.name}</li>
-                ))}
-            </ul>
-            <button onClick={handleAddRepository}>Add Repository</button>
-        </>
+        <ul>
+            {repositories.map((repo) => (
+                <li key={repo.id}>{repo.name}</li>
+            ))}
+        </ul>
     );
 }
-
-export default App;
